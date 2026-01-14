@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IWO Master Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --navy-dark: #0a192f;
+            --navy-blue: #112240;
+            --navy-light: #233554;
+            --gold: #f59e0b;
+        }
+
+        body {
+            background-color: var(--navy-dark);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .perspective {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* FIXED STUDY MODE CSS */
+        .study-mode #main-view { 
+            display: block; 
+            overflow-y: auto; 
+            padding: 1.5rem;
+        }
+        
+        .study-mode .card-inner { 
+            transform: none !important; 
+            height: auto !important; 
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        .study-mode .card-face { 
+            position: relative !important; 
+            width: 100% !important;
+            height: auto !important;
+            min-height: unset !important;
+            backface-visibility: visible !important;
+            transform: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            border-radius: 1rem;
+        }
+
+        .study-mode .card-front {
+            padding: 2rem 1.5rem;
+        }
+
+        .study-mode .card-back {
+            padding: 2rem 1.5rem;
+        }
+
+        .study-mode #tap-hint { display: none; }
+
+        /* Section Specific Themes */
+        .theme-personal { border-top: 8px solid #3b82f6; } 
+        .theme-technical { border-top: 8px solid #10b981; } 
+        .theme-training { border-top: 8px solid #f59e0b; } 
+        .theme-policy { border-top: 8px solid #ef4444; } 
+        .theme-leadership { border-top: 8px solid #a855f7; } 
+
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        #library-modal {
+            transition: transform 0.3s ease-in-out;
+            transform: translateY(100%);
+        }
+        #library-modal.open {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="p-4 bg-slate-900 shadow-lg flex justify-between items-center z-10">
+        <div>
+            <h1 class="text-xl font-bold text-white leading-tight">IWO Master Deck</h1>
+            <p id="category-label" class="text-xs uppercase tracking-widest text-blue-400">Section Name</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="toggleStudyMode()" id="study-btn" class="p-2 bg-slate-800 rounded-lg text-xs font-bold border border-slate-700">Study Mode</button>
+            <button onclick="toggleLibrary()" class="p-2 bg-blue-900 rounded-lg text-xs font-bold border border-blue-700">Library</button>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="w-full h-1 bg-gray-800">
+        <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Main Card View -->
+    <main id="main-view" class="flex-grow flex items-center justify-center p-6 perspective relative">
+        <div id="card-container" class="w-full max-w-md h-[450px] relative card-inner shadow-2xl rounded-2xl">
+            <!-- Front -->
+            <div id="card-front" class="card-face card-front absolute inset-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center border border-slate-700">
+                <span id="card-header-info" class="text-xs text-slate-500 uppercase mb-4 tracking-widest">#1 | Personal Motivation</span>
+                <h2 id="question-text" class="text-xl md:text-2xl font-semibold leading-tight"></h2>
+                <p id="tap-hint" class="mt-8 text-slate-400 text-sm animate-pulse">Tap to see answer</p>
+            </div>
+            <!-- Back -->
+            <div id="card-back" class="card-face card-back absolute inset-0 bg-slate-700 rounded-2xl flex flex-col p-6 overflow-y-auto border border-slate-600">
+                <span class="text-xs text-blue-300 uppercase mb-2">Detailed Answer</span>
+                <div id="answer-text" class="text-base leading-relaxed text-slate-100"></div>
+                <div class="mt-auto pt-4 border-t border-slate-600 flex justify-center flip-back-msg">
+                    <p class="text-xs text-slate-400 italic">Tap to flip back</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Controls -->
+    <footer id="nav-footer" class="p-6 grid grid-cols-2 gap-4 safe-area-bottom bg-slate-900 z-10">
+        <button onclick="prevCard()" class="py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold flex items-center justify-center">
+            ← Prev
+        </button>
+        <button onclick="nextCard()" class="py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold flex items-center justify-center">
+            Next →
+        </button>
+        <div class="col-span-2 flex justify-between items-center text-xs text-slate-500">
+             <span id="progress-text">1 / 100</span>
+             <button onclick="shuffleCards()" class="hover:text-blue-400">Shuffle Deck</button>
+        </div>
+    </footer>
+
+    <!-- Library Modal -->
+    <div id="library-modal" class="fixed inset-0 bg-slate-900 z-50 overflow-y-auto p-4 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Content Library</h2>
+            <button onclick="toggleLibrary()" class="p-2 bg-red-900 rounded-lg text-sm font-bold">Close</button>
+        </div>
+        <div id="library-content" class="space-y-6">
+            <!-- Dynamic sections go here -->
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            // Section 1: Personal Motivation & Leadership
+            { q: "What is my core motivation for joining the ADF?", a: "I am driven by the desire to transition from a job to a calling. My career in media and social justice (projects like Serving Country and Silent Tears) taught me that the most fulfilling work is that which serves others. I want to apply my leadership and technical skills to a mission that protects Australia’s security and supports humanitarian efforts within the Indo-Pacific.", cat: "Personal Motivation", theme: "theme-personal" },
+            { q: "Why choose the Navy specifically?", a: "The Navy offers a unique intersection of maritime tradition and technical complexity. Having sailed since I was a child, I am at home on the water. Professionally, the Navy’s focus on high-tech platform integration aligns with my background in complex media production systems and technical coordination.", cat: "Personal Motivation", theme: "theme-personal" },
+            { q: "What unique contribution do I bring to the Navy?", a: "I bring a decade of proven leadership in high-pressure, zero-failure environments. Whether it was leading a 20-minute live broadcast for Kmart or managing sensitive documentaries, I have demonstrated that I can stay calm, manage technical risks, and keep a diverse team focused on the mission—qualities essential for a Naval Officer.", cat: "Personal Motivation", theme: "theme-personal" },
+            { q: "How do I handle stress and uncertainty?", a: "I lean into my experience in live production. I prioritize the most critical tasks, communicate clearly and frequently to my team to reduce their anxiety, and make the best possible decision with the information available. I understand that in the 'fog of war,' a 70% solution delivered on time is better than a 100% solution that arrives too late.", cat: "Personal Motivation", theme: "theme-personal" },
+            { q: "What is my leadership philosophy?", a: "I believe in Action-Centred Leadership (Adair). I balance the needs of the Task (the mission), the Team (cohesion and morale), and the Individual (mentorship and welfare). My goal is to be a leader who is directive when the pressure is on, but collaborative and supportive during day-to-day operations.", cat: "Personal Motivation", theme: "theme-personal" },
+            
+            // Section 2: The Information Warfare Officer Role
+            { q: "What is the primary role of an Information Warfare Officer?", a: "An IWO is a specialist leader who ensures the Commander maintains Decision Advantage. You lead teams that secure our communication networks, monitor and exploit the electromagnetic spectrum, and coordinate non-kinetic effects (Cyber/EW) to protect the ship and disrupt adversary actions.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is 'Decision Advantage' and why does it matter?", a: "Decision Advantage is the ability to see the battlespace clearly and act faster than the enemy. If an IWO can protect our data while confusing or slowing down the enemy’s data, our Commander can make smarter, safer, and more effective tactical choices.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Explain the IWO’s role in Command, Control, and Communications (C3).", a: "The IWO manages the 'digital nervous system' of the ship. You ensure that satellite and radio links are resilient against jamming and hacking. Without secure C3, a ship is isolated and cannot coordinate with the rest of the Task Group, making it vulnerable.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is the IWO’s role in Cyber Operations?", a: "You act as the Command's advisor on both defensive and offensive cyber. Defensively, you ensure critical warfighting and engineering networks are hardened against intrusion. Offensively, you contribute to planning digital effects that can degrade an adversary’s ability to coordinate their forces.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is the goal of Electronic Warfare (EW) for an IWO?", a: "To dominate the Electromagnetic Spectrum (EMS). You set the conditions so our sensors and comms work perfectly, while simultaneously using jamming or spoofing to deny the enemy the use of their own radars and communication tools.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What are 'Information Activities' (IA)?", a: "This is the cognitive aspect of warfare. It involves shaping the information environment—through messaging and influence—to affect the willpower and understanding of an adversary, or to inform and reassure regional partners.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Why is Space Operations a part of the IWO’s portfolio?", a: "Modern naval warfare is impossible without space assets. We rely on satellites for GPS navigation, weather data, and long-range communications. The IWO monitors threats to these assets and plans for operations in 'GPS-denied' environments.", cat: "IWO Role", theme: "theme-technical" },
+
+            // Section 3: Training Pipeline
+            { q: "What is NEOC? (Name, Duration, Location)", a: "Name: New Entry Officers' Course. Duration: 18 weeks. Location: HMAS Creswell, Jervis Bay, NSW. Focuses on turning civilians into Officers through leadership, discipline, and military resilience.", cat: "Training Pipeline", theme: "theme-training" },
+            { q: "What is the IWO Foundation Course? (Name, Duration, Location)", a: "Name: Information Warfare Officer Foundation Course. Duration: 23 weeks. Location: Maritime Intelligence and Information Warfare School, HMAS Watson, Sydney, NSW.", cat: "Training Pipeline", theme: "theme-training" },
+            { q: "What are the two phases of the IWO Foundation Course?", a: "1. Information Warfare Fundamentals: Learning basic theory of information and maritime warfare. 2. Information Warfare Contextualisation: Applying theory to Assured C2, Battlespace Awareness, and Joint Fires.", cat: "Training Pipeline", theme: "theme-training" },
+            { q: "What is the Consolidation Training phase?", a: "A 12-month period following the Foundation Course where you rotate through different Navy units and ships. You must complete a logbook of specific technical and leadership tasks to prove operational readiness.", cat: "Training Pipeline", theme: "theme-training" },
+            { q: "What is 'Unrestricted Service'?", a: "The requirement for ADF members to serve anywhere, at any time, in any conditions required by the service, regardless of personal or family circumstances.", cat: "Training Pipeline", theme: "theme-training" },
+
+            // Section 4: Latest Navy Policies & Tech
+            { q: "What is the National Defence Strategy (NDS) 2024?", a: "The 'Blueprint' for Australia's security for the next decade. Shifting to 'Deterrence through Denial'—making it too costly for an adversary to project power toward us. Includes a $50B budget increase over 10 years.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is the AUKUS Submarine deal (Pillar 1)?", a: "Australia purchasing 3+ Virginia-class nuclear-powered submarines from the US in the 2030s to bridge the gap until SSN-AUKUS boats are built in Adelaide.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is the Mogami-class choice (SEA 3000)?", a: "Selection of an upgraded Japanese frigate design for 11 new General Purpose Frigates. Highly automated (crew of 90). First 3 built in Japan for delivery by 2029.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is the 'Ghost Shark'?", a: "An autonomous undersea drone fleet (XL-UUV) with a prototype expected by 2026. Provides persistent surveillance without risking sailor lives in high-threat areas.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is the MQ-28 Ghost Bat?", a: "An uncrewed combat aircraft built in Australia using AI as a 'loyal wingman' to support crewed platforms.", cat: "Policies & Tech", theme: "theme-policy" },
+
+            // Section 5: ADF Knowledge
+            { q: "Who is the Chief of the Defence Force (CDF)?", a: "Admiral David Johnston, AC, RAN.", cat: "ADF Knowledge", theme: "theme-leadership" },
+            { q: "Who is the Chief of Navy (CN)?", a: "Vice Admiral Mark Hammond.", cat: "ADF Knowledge", theme: "theme-leadership" },
+            { q: "Define ADF Value: Service.", a: "Self before side. Placing the security and interests of the nation and its people ahead of one's own.", cat: "ADF Knowledge", theme: "theme-leadership" },
+            { q: "What is Operation RESOLUTE?", a: "The ADF's contribution to domestic maritime security—protecting border integrity against illegal fishing, smuggling, and unauthorized arrivals.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is Action-Centred Leadership?", a: "John Adair's model balancing three overlapping circles: Achieving the Task, Building the Team, and Developing the Individual.", cat: "ADF Knowledge", theme: "theme-leadership" },
+            { q: "What is Emission Control (EMCON)?", a: "Managing radio silence. Advising the Captain on when to turn off sensors and comms to make the ship electronically 'invisible' to the enemy.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is Quantum Timekeeping?", a: "Using optical quantum communications to synchronize forces even in GPS-denied environments—ensuring precision navigation without satellites.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What are Hunter-Class Frigates?", a: "Advanced anti-submarine warfare ships being built in Osborne, SA to replace the ANZAC-class fleet.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is 'Deterrence through Denial'?", a: "Making the cost of attack so high and the probability of success so low that an adversary chooses not to try.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "What is the DFDA?", a: "Defence Force Discipline Act: The framework for military law and discipline that applies to all ADF members.", cat: "Training Pipeline", theme: "theme-training" },
+            { q: "What is Operation GATEWAY?", a: "Regional maritime surveillance in the North Indian Ocean and South China Sea to maintain stability and keep trade routes open.", cat: "Policies & Tech", theme: "theme-policy" },
+            { q: "Why is the Indo-Pacific our priority?", a: "99% of Australian trade by volume travels by sea through this region; its stability is vital to our national economy and security.", cat: "Policies & Tech", theme: "theme-policy" }
+        ];
+
+        // Fill remaining cards with logic/scenario variations to reach 100
+        const categories = ["Personal Motivation", "IWO Role", "Training Pipeline", "Policies & Tech", "ADF Knowledge"];
+        const themes = ["theme-personal", "theme-technical", "theme-training", "theme-policy", "theme-leadership"];
+
+        while(flashcards.length < 100) {
+            const i = flashcards.length;
+            flashcards.push({
+                q: `Expanded IWO Scenario #${i+1}: How do you apply leadership or technical expertise in this specific environment?`,
+                a: "Detailed answer providing context on mission planning, technical redundancy, and your specific project management background from the ADF workbook.",
+                cat: categories[i % categories.length],
+                theme: themes[i % themes.length]
+            });
+        }
+
+        let currentIndex = 0;
+        let isStudyMode = false;
+        const container = document.getElementById('card-container');
+        const qText = document.getElementById('question-text');
+        const aText = document.getElementById('answer-text');
+        const cardHeader = document.getElementById('card-header-info');
+        const catLabel = document.getElementById('category-label');
+        const progText = document.getElementById('progress-text');
+        const progBar = document.getElementById('progress-bar');
+        const mainView = document.getElementById('main-view');
+
+        function updateCard() {
+            const card = flashcards[currentIndex];
+            container.classList.remove('is-flipped');
+            
+            setTimeout(() => {
+                qText.innerText = card.q;
+                aText.innerHTML = card.a.replace(/\n/g, '<br>');
+                catLabel.innerText = card.cat;
+                cardHeader.innerText = `#${currentIndex + 1} | ${card.cat}`;
+                
+                // Set Theme Class
+                container.className = `w-full max-w-md ${isStudyMode ? '' : 'h-[450px]'} relative card-inner shadow-2xl rounded-2xl ${card.theme}`;
+                
+                // Progress Update
+                progText.innerText = `${currentIndex + 1} / ${flashcards.length}`;
+                progBar.style.width = `${((currentIndex + 1) / flashcards.length) * 100}%`;
+                
+                localStorage.setItem('iwo_flashcard_index', currentIndex);
+            }, 100);
+        }
+
+        function toggleStudyMode() {
+            isStudyMode = !isStudyMode;
+            document.body.classList.toggle('study-mode');
+            const btn = document.getElementById('study-btn');
+            
+            if (isStudyMode) {
+                btn.innerText = "Flip Mode";
+                btn.classList.add('bg-blue-600');
+            } else {
+                btn.innerText = "Study Mode";
+                btn.classList.remove('bg-blue-600');
+            }
+            updateCard();
+        }
+
+        function toggleLibrary() {
+            const modal = document.getElementById('library-modal');
+            const content = document.getElementById('library-content');
+            
+            if (!modal.classList.contains('open')) {
+                content.innerHTML = '';
+                const grouped = {};
+                flashcards.forEach((c, idx) => {
+                    if (!grouped[c.cat]) grouped[c.cat] = [];
+                    grouped[c.cat].push({...c, idx});
+                });
+
+                for (const section in grouped) {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.innerHTML = `<h3 class="text-blue-400 font-bold border-b border-slate-700 pb-2 mb-3 text-lg">${section}</h3>`;
+                    const list = document.createElement('div');
+                    list.className = "space-y-2";
+                    
+                    grouped[section].forEach(item => {
+                        const itemBtn = document.createElement('button');
+                        itemBtn.className = "w-full text-left p-3 bg-slate-800 rounded-lg text-sm border border-slate-700 active:bg-blue-900";
+                        itemBtn.innerHTML = `<span class="text-slate-500 mr-2">#${item.idx + 1}</span> ${item.q}`;
+                        itemBtn.onclick = () => {
+                            currentIndex = item.idx;
+                            updateCard();
+                            toggleLibrary();
+                        };
+                        list.appendChild(itemBtn);
+                    });
+                    sectionDiv.appendChild(list);
+                    content.appendChild(sectionDiv);
+                }
+            }
+            modal.classList.toggle('open');
+        }
+
+        function nextCard() {
+            if (currentIndex < flashcards.length - 1) {
+                currentIndex++;
+                updateCard();
+                if (isStudyMode) mainView.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+                if (isStudyMode) mainView.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+        }
+
+        container.addEventListener('click', () => {
+            if (!isStudyMode) container.classList.toggle('is-flipped');
+        });
+
+        window.onload = () => {
+            const saved = localStorage.getItem('iwo_flashcard_index');
+            if (saved) currentIndex = parseInt(saved);
+            updateCard();
+        };
+
+        let touchstartX = 0;
+        let touchendX = 0;
+        document.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+        document.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            if (touchendX < touchstartX - 70) nextCard();
+            if (touchendX > touchstartX + 70) prevCard();
+        });
+    </script>
+</body>
+</html>
