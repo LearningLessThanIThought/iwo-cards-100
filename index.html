@@ -75,6 +75,8 @@
 
         .study-mode .card-front {
             padding: 2rem 1.5rem;
+            text-align: left !important;
+            align-items: flex-start !important;
         }
 
         .study-mode .card-back {
@@ -127,7 +129,7 @@
         <div id="card-container" class="w-full max-w-md h-[450px] relative card-inner shadow-2xl rounded-2xl">
             <!-- Front -->
             <div id="card-front" class="card-face card-front absolute inset-0 bg-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center border border-slate-700">
-                <span id="card-header-info" class="text-xs text-slate-500 uppercase mb-4 tracking-widest">#1 | Personal Motivation</span>
+                <span id="card-header-info" class="text-xs text-slate-500 uppercase mb-4 tracking-widest">#1 | Motivation</span>
                 <h2 id="question-text" class="text-xl md:text-2xl font-semibold leading-tight"></h2>
                 <p id="tap-hint" class="mt-8 text-slate-400 text-sm animate-pulse">Tap to see answer</p>
             </div>
@@ -152,7 +154,7 @@
         </button>
         <div class="col-span-2 flex justify-between items-center text-xs text-slate-500">
              <span id="progress-text">1 / 100</span>
-             <button onclick="shuffleCards()" class="hover:text-blue-400">Shuffle Deck</button>
+             <button onclick="resetOrder()" class="hover:text-blue-400">Jump to Start</button>
         </div>
     </footer>
 
@@ -169,64 +171,116 @@
 
     <script>
         const flashcards = [
-            // Section 1: Personal Motivation & Leadership
-            { q: "What is my core motivation for joining the ADF?", a: "I am driven by the desire to transition from a job to a calling. My career in media and social justice (projects like Serving Country and Silent Tears) taught me that the most fulfilling work is that which serves others. I want to apply my leadership and technical skills to a mission that protects Australia’s security and supports humanitarian efforts within the Indo-Pacific.", cat: "Personal Motivation", theme: "theme-personal" },
-            { q: "Why choose the Navy specifically?", a: "The Navy offers a unique intersection of maritime tradition and technical complexity. Having sailed since I was a child, I am at home on the water. Professionally, the Navy’s focus on high-tech platform integration aligns with my background in complex media production systems and technical coordination.", cat: "Personal Motivation", theme: "theme-personal" },
-            { q: "What unique contribution do I bring to the Navy?", a: "I bring a decade of proven leadership in high-pressure, zero-failure environments. Whether it was leading a 20-minute live broadcast for Kmart or managing sensitive documentaries, I have demonstrated that I can stay calm, manage technical risks, and keep a diverse team focused on the mission—qualities essential for a Naval Officer.", cat: "Personal Motivation", theme: "theme-personal" },
-            { q: "How do I handle stress and uncertainty?", a: "I lean into my experience in live production. I prioritize the most critical tasks, communicate clearly and frequently to my team to reduce their anxiety, and make the best possible decision with the information available. I understand that in the 'fog of war,' a 70% solution delivered on time is better than a 100% solution that arrives too late.", cat: "Personal Motivation", theme: "theme-personal" },
-            { q: "What is my leadership philosophy?", a: "I believe in Action-Centred Leadership (Adair). I balance the needs of the Task (the mission), the Team (cohesion and morale), and the Individual (mentorship and welfare). My goal is to be a leader who is directive when the pressure is on, but collaborative and supportive during day-to-day operations.", cat: "Personal Motivation", theme: "theme-personal" },
+            // PART 1 - Personal & Motivation
+            { q: "Why do I want to join the ADF?", a: "I want to do something bigger than just a job. My career in media (Serving Country, Silent Tears) taught me the value of service. Joining the Navy is a natural extension—serving the community directly through protecting Australia and supporting humanitarian missions.", cat: "Motivation", theme: "theme-personal" },
+            { q: "Why did I choose the Navy?", a: "It fits my personal history (sailing since childhood) and professional skills (managing complex technical systems). The Navy offers a mix of maritime tradition and cutting-edge strategy that I find motivating.", cat: "Motivation", theme: "theme-personal" },
+            { q: "Why Information Warfare Officer (IWO)?", a: "It sits at the intersection of technology, strategy, and leadership. I enjoy making sense of complex data and making decisions under pressure, which is exactly what an IWO does to achieve Decision Advantage.", cat: "Motivation", theme: "theme-personal" },
+            { q: "What unique contribution do I bring?", a: "Proven leadership in high-stakes environments (e.g., live broadcasts). I bring maturity, resilience from managing sensitive projects, and the ability to lead diverse teams through technical uncertainty.", cat: "Motivation", theme: "theme-personal" },
+            { q: "How do I handle stress?", a: "I prioritize critical tasks, communicate clearly to my team to reduce anxiety, and make the best decision possible with available info. I treat failure as data to improve future performance.", cat: "Motivation", theme: "theme-personal" },
+            { q: "What does my family think?", a: "They are fully supportive. We see this as a stable, meaningful career path. I want my children to see me serving something bigger than myself.", cat: "Motivation", theme: "theme-personal" },
+            { q: "My Leadership Philosophy?", a: "Action-Centred Leadership (Adair). Balancing the Task, the Team, and the Individual. I lead from the front but empower my team to own their roles.", cat: "Motivation", theme: "theme-personal" },
+            { q: "My Leadership Style?", a: "A mix of Situational and Diplomatic. I am directive when time is critical (like a live broadcast) but collaborative when building team culture.", cat: "Motivation", theme: "theme-personal" },
+            { q: "Example: Leading under pressure (Kmart Live)?", a: "Situation: Live broadcast link failed. Action: I stayed calm, reassigned roles instantly, and communicated the fix. Result: Broadcast continued, client happy. Shows ability to pivot under fire.", cat: "Motivation", theme: "theme-personal" },
+            { q: "Example: Boosting Morale (VisFest)?", a: "Situation: Low morale after redundancies. Action: I rallied the team to create a film, focusing on creativity and pride. Result: We won the competition, restoring team cohesion.", cat: "Motivation", theme: "theme-personal" },
             
-            // Section 2: The Information Warfare Officer Role
-            { q: "What is the primary role of an Information Warfare Officer?", a: "An IWO is a specialist leader who ensures the Commander maintains Decision Advantage. You lead teams that secure our communication networks, monitor and exploit the electromagnetic spectrum, and coordinate non-kinetic effects (Cyber/EW) to protect the ship and disrupt adversary actions.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What is 'Decision Advantage' and why does it matter?", a: "Decision Advantage is the ability to see the battlespace clearly and act faster than the enemy. If an IWO can protect our data while confusing or slowing down the enemy’s data, our Commander can make smarter, safer, and more effective tactical choices.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "Explain the IWO’s role in Command, Control, and Communications (C3).", a: "The IWO manages the 'digital nervous system' of the ship. You ensure that satellite and radio links are resilient against jamming and hacking. Without secure C3, a ship is isolated and cannot coordinate with the rest of the Task Group, making it vulnerable.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What is the IWO’s role in Cyber Operations?", a: "You act as the Command's advisor on both defensive and offensive cyber. Defensively, you ensure critical warfighting and engineering networks are hardened against intrusion. Offensively, you contribute to planning digital effects that can degrade an adversary’s ability to coordinate their forces.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What is the goal of Electronic Warfare (EW) for an IWO?", a: "To dominate the Electromagnetic Spectrum (EMS). You set the conditions so our sensors and comms work perfectly, while simultaneously using jamming or spoofing to deny the enemy the use of their own radars and communication tools.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What are 'Information Activities' (IA)?", a: "This is the cognitive aspect of warfare. It involves shaping the information environment—through messaging and influence—to affect the willpower and understanding of an adversary, or to inform and reassure regional partners.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "Why is Space Operations a part of the IWO’s portfolio?", a: "Modern naval warfare is impossible without space assets. We rely on satellites for GPS navigation, weather data, and long-range communications. The IWO monitors threats to these assets and plans for operations in 'GPS-denied' environments.", cat: "IWO Role", theme: "theme-technical" },
+            // PART 2 - Role Knowledge (IWO)
+            { q: "Primary Role of an IWO?", a: "To ensure the Commander maintains Decision Advantage. You lead teams to protect our networks, exploit the electromagnetic spectrum, and coordinate information effects.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is Decision Advantage?", a: "The ability to see the battlespace clearly and act faster than the enemy. Protecting our data while disrupting theirs allows for smarter tactical choices.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What are the 3 Pillars of IW?", a: "1. Assured Command & Control (C2). 2. Battlespace Awareness. 3. Joint Fires & Effects.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Explain C3 (Command, Control, Comms).", a: "The 'digital nervous system' of the ship. Ensuring satellite/radio links are resilient so the ship isn't isolated from the Task Group.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Defensive Cyber Operations?", a: "Protecting Navy networks (warfighting and administrative) from intrusion and ensuring mission systems remain functional under attack.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Offensive Cyber Operations?", a: "Contributing to planning effects that degrade an adversary's ability to coordinate their forces.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Electronic Warfare (EW) Goal?", a: "To dominate the Electromagnetic Spectrum (EMS). Ensuring our sensors work while denying the enemy use of theirs.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is the EMS?", a: "Electromagnetic Spectrum. The range of frequencies used for communications, radar, and sensors. It is 'congested and contested'.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Information Activities (IA)?", a: "The cognitive domain. Using information to influence adversary decision-making or reassure partners.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "Space Operations relevance?", a: "Navy relies on space for GPS, weather, and comms. IWOs must plan for 'GPS-denied' environments where these assets are targeted.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "IWO vs Network Operator?", a: "The Operator fixes the router; the IWO assesses the operational risk of the outage and advises the Captain on how to fight without it.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is EMCON?", a: "Emission Control. restricting radio/radar signals to make the ship electronically 'invisible' to enemy sensors.", cat: "IWO Role", theme: "theme-technical" },
+            { q: "What is C3 Resilience?", a: "The ability of the network to recover quickly or switch to backup paths when attacked, ensuring the Commander never loses control.", cat: "IWO Role", theme: "theme-technical" },
 
-            // Section 3: Training Pipeline
-            { q: "What is NEOC? (Name, Duration, Location)", a: "Name: New Entry Officers' Course. Duration: 18 weeks. Location: HMAS Creswell, Jervis Bay, NSW. Focuses on turning civilians into Officers through leadership, discipline, and military resilience.", cat: "Training Pipeline", theme: "theme-training" },
-            { q: "What is the IWO Foundation Course? (Name, Duration, Location)", a: "Name: Information Warfare Officer Foundation Course. Duration: 23 weeks. Location: Maritime Intelligence and Information Warfare School, HMAS Watson, Sydney, NSW.", cat: "Training Pipeline", theme: "theme-training" },
-            { q: "What are the two phases of the IWO Foundation Course?", a: "1. Information Warfare Fundamentals: Learning basic theory of information and maritime warfare. 2. Information Warfare Contextualisation: Applying theory to Assured C2, Battlespace Awareness, and Joint Fires.", cat: "Training Pipeline", theme: "theme-training" },
-            { q: "What is the Consolidation Training phase?", a: "A 12-month period following the Foundation Course where you rotate through different Navy units and ships. You must complete a logbook of specific technical and leadership tasks to prove operational readiness.", cat: "Training Pipeline", theme: "theme-training" },
-            { q: "What is 'Unrestricted Service'?", a: "The requirement for ADF members to serve anywhere, at any time, in any conditions required by the service, regardless of personal or family circumstances.", cat: "Training Pipeline", theme: "theme-training" },
+            // PART 3 - Training Pipeline
+            { q: "NEOC Location & Duration?", a: "HMAS Creswell, Jervis Bay, NSW. 18 Weeks.", cat: "Training", theme: "theme-training" },
+            { q: "NEOC Content?", a: "Leadership, discipline, military resilience, small arms, first aid, survival at sea, and Naval history.", cat: "Training", theme: "theme-training" },
+            { q: "IWO Foundation Course Location & Duration?", a: "HMAS Watson, Sydney. 23 Weeks.", cat: "Training", theme: "theme-training" },
+            { q: "IWO Foundation Phases?", a: "Phase 1: IW Fundamentals (Theory). Phase 2: IW Contextualisation (Practical application of the 3 pillars).", cat: "Training", theme: "theme-training" },
+            { q: "What is Consolidation Training?", a: "12 months of rotating through ships/units to complete a task book and prove operational competence.", cat: "Training", theme: "theme-training" },
+            { q: "IMPS for IWO?", a: "Initial Minimum Period of Service: 6 Years.", cat: "Training", theme: "theme-training" },
+            { q: "What is the PFA?", a: "Pre-Entry Fitness Assessment. Push-ups, sit-ups, and 6.1 Beep test (min).", cat: "Training", theme: "theme-training" },
+            { q: "What is the DFDA?", a: "Defence Force Discipline Act. Military law that applies to ADF members on top of civilian law.", cat: "Training", theme: "theme-training" },
+            { q: "Salary: Trainee vs Qualified?", a: "Trainee: ~$69k. Qualified: ~$92k. Plus 16.4% Super.", cat: "Training", theme: "theme-training" },
+            { q: "Military Resilience Training?", a: "Training to prepare officers for the mental demands of combat, isolation, and high-tempo ops.", cat: "Training", theme: "theme-training" },
+            { q: "Survival at Sea training?", a: "Learning to use life rafts, emergency beacons, and survive in the ocean if a ship is lost.", cat: "Training", theme: "theme-training" },
+            { q: "Small Arms Training?", a: "Proficiency with EF88 Rifle and Browning Hi-Power pistol for force protection.", cat: "Training", theme: "theme-training" },
 
-            // Section 4: Latest Navy Policies & Tech
-            { q: "What is the National Defence Strategy (NDS) 2024?", a: "The 'Blueprint' for Australia's security for the next decade. Shifting to 'Deterrence through Denial'—making it too costly for an adversary to project power toward us. Includes a $50B budget increase over 10 years.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is the AUKUS Submarine deal (Pillar 1)?", a: "Australia purchasing 3+ Virginia-class nuclear-powered submarines from the US in the 2030s to bridge the gap until SSN-AUKUS boats are built in Adelaide.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is the Mogami-class choice (SEA 3000)?", a: "Selection of an upgraded Japanese frigate design for 11 new General Purpose Frigates. Highly automated (crew of 90). First 3 built in Japan for delivery by 2029.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is the 'Ghost Shark'?", a: "An autonomous undersea drone fleet (XL-UUV) with a prototype expected by 2026. Provides persistent surveillance without risking sailor lives in high-threat areas.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is the MQ-28 Ghost Bat?", a: "An uncrewed combat aircraft built in Australia using AI as a 'loyal wingman' to support crewed platforms.", cat: "Policies & Tech", theme: "theme-policy" },
+            // PART 4 - Policy & Tech
+            { q: "NDS 2024 Goal?", a: "Safeguard Australia's security with a strategy of 'Deterrence through Denial'.", cat: "Policy", theme: "theme-policy" },
+            { q: "What is Deterrence through Denial?", a: "Making an attack so costly and likely to fail that the adversary chooses not to try.", cat: "Policy", theme: "theme-policy" },
+            { q: "$50 Billion Budget Context?", a: "Additional funding over the next 10 years to rebuild the surface fleet and acquire subs.", cat: "Policy", theme: "theme-policy" },
+            { q: "AUKUS Pillar 1?", a: "Acquisition of nuclear-powered submarines (Virginia class then SSN-AUKUS).", cat: "Policy", theme: "theme-policy" },
+            { q: "AUKUS Pillar 2?", a: "Advanced capability sharing: AI, Quantum, Cyber, Hypersonics, Electronic Warfare.", cat: "Policy", theme: "theme-policy" },
+            { q: "SEA 3000?", a: "Project to acquire 11 General Purpose Frigates (Japanese Mogami-class).", cat: "Policy", theme: "theme-policy" },
+            { q: "Why Mogami Class?", a: "Highly automated (crew of ~90), proven design, fast delivery (first ships by 2029).", cat: "Policy", theme: "theme-policy" },
+            { q: "Ghost Shark?", a: "Autonomous undersea drone (XL-UUV). Persistent surveillance without risking crew.", cat: "Policy", theme: "theme-policy" },
+            { q: "MQ-28 Ghost Bat?", a: "Uncrewed combat aircraft (Loyal Wingman). Uses AI to support crewed jets.", cat: "Policy", theme: "theme-policy" },
+            { q: "Hunter Class Frigates?", a: "Advanced ASW ships being built in Osborne, SA to replace ANZAC class.", cat: "Policy", theme: "theme-policy" },
+            { q: "Copperhead?", a: "Modular, cost-effective guided weapon system for the Navy.", cat: "Policy", theme: "theme-policy" },
+            { q: "Quantum Timekeeping?", a: "Optical quantum comms to keep forces synced when GPS is jammed.", cat: "Policy", theme: "theme-policy" },
+            { q: "Concept: Smart Force?", a: "Blending people, AI, and autonomy to increase lethality without needing massive manpower.", cat: "Policy", theme: "theme-policy" },
+            { q: "Continuous Shipbuilding?", a: "Policy to keep building ships in AU (WA/SA) to maintain industrial skills and sovereign capability.", cat: "Policy", theme: "theme-policy" },
 
-            // Section 5: ADF Knowledge
-            { q: "Who is the Chief of the Defence Force (CDF)?", a: "Admiral David Johnston, AC, RAN.", cat: "ADF Knowledge", theme: "theme-leadership" },
-            { q: "Who is the Chief of Navy (CN)?", a: "Vice Admiral Mark Hammond.", cat: "ADF Knowledge", theme: "theme-leadership" },
-            { q: "Define ADF Value: Service.", a: "Self before side. Placing the security and interests of the nation and its people ahead of one's own.", cat: "ADF Knowledge", theme: "theme-leadership" },
-            { q: "What is Operation RESOLUTE?", a: "The ADF's contribution to domestic maritime security—protecting border integrity against illegal fishing, smuggling, and unauthorized arrivals.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is Action-Centred Leadership?", a: "John Adair's model balancing three overlapping circles: Achieving the Task, Building the Team, and Developing the Individual.", cat: "ADF Knowledge", theme: "theme-leadership" },
-            { q: "What is Emission Control (EMCON)?", a: "Managing radio silence. Advising the Captain on when to turn off sensors and comms to make the ship electronically 'invisible' to the enemy.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What is Quantum Timekeeping?", a: "Using optical quantum communications to synchronize forces even in GPS-denied environments—ensuring precision navigation without satellites.", cat: "IWO Role", theme: "theme-technical" },
-            { q: "What are Hunter-Class Frigates?", a: "Advanced anti-submarine warfare ships being built in Osborne, SA to replace the ANZAC-class fleet.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is 'Deterrence through Denial'?", a: "Making the cost of attack so high and the probability of success so low that an adversary chooses not to try.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "What is the DFDA?", a: "Defence Force Discipline Act: The framework for military law and discipline that applies to all ADF members.", cat: "Training Pipeline", theme: "theme-training" },
-            { q: "What is Operation GATEWAY?", a: "Regional maritime surveillance in the North Indian Ocean and South China Sea to maintain stability and keep trade routes open.", cat: "Policies & Tech", theme: "theme-policy" },
-            { q: "Why is the Indo-Pacific our priority?", a: "99% of Australian trade by volume travels by sea through this region; its stability is vital to our national economy and security.", cat: "Policies & Tech", theme: "theme-policy" }
+            // PART 5 - Operations
+            { q: "Operation Resolute?", a: "Domestic border protection. Anti-illegal fishing, smuggling, and unauthorized arrivals.", cat: "Operations", theme: "theme-policy" },
+            { q: "Operation Gateway?", a: "Maritime surveillance in North Indian Ocean/South China Sea. Maintaining regional stability.", cat: "Operations", theme: "theme-policy" },
+            { q: "Operation Manitou?", a: "Middle East maritime security. Counter-terrorism, counter-piracy, safe navigation.", cat: "Operations", theme: "theme-policy" },
+            { q: "Operation Dyurra?", a: "ADF Space operation. Integrating space effects into broader operations.", cat: "Operations", theme: "theme-policy" },
+            { q: "PNG Defence Agreement?", a: "Treaty for mutual aid if attacked. Pathway for PNG personnel to train/serve with ADF.", cat: "Operations", theme: "theme-policy" },
+            { q: "Indo-Pacific Importance?", a: "99% of AU trade travels by sea here. Stability is vital for our economy.", cat: "Operations", theme: "theme-policy" },
+            { q: "Rules-Based Global Order?", a: "System of international law (like UNCLOS) ensuring freedom of navigation for all nations.", cat: "Operations", theme: "theme-policy" },
+
+            // PART 6 - Leadership & ADF Knowledge
+            { q: "Who is the CDF?", a: "Admiral David Johnston, AC, RAN.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Who is the CN?", a: "Vice Admiral Mark Hammond.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Who is the VCDF?", a: "Air Marshal Robert Chipman.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Minister for Defence?", a: "Hon. Richard Marles, MP.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Values: CRIES?", a: "Courage, Respect, Integrity, Excellence, Service.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Value: Service?", a: "Self before side. Putting the nation and team first.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Value: Integrity?", a: "Doing the right thing when no one is watching. Moral consistency.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Value: Courage?", a: "Moral and physical courage to do what is right despite fear.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Value: Respect?", a: "Treating others with dignity. Vital for diverse Navy teams.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Value: Excellence?", a: "Striving for the highest standard in every task.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Manager vs Leader?", a: "Managers handle process/resources. Leaders inspire people to achieve a shared goal.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Junior Officer Ranks?", a: "Midshipman > Acting Sub Lieutenant > Sub Lieutenant > Lieutenant.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Senior Officer Ranks?", a: "Lt Commander > Commander > Captain > Commodore > Admiral.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Officer of the Day (OOD)?", a: "Represents the Captain in port. Responsible for ship safety/security. Shows 'Officer first' duty.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Divisional Officer (DO)?", a: "Responsible for welfare, discipline, and career of a group of sailors. First point of contact.", cat: "Leadership", theme: "theme-leadership" },
+
+            // PART 7 - Technical & Scenarios
+            { q: "Defensive Cyber Advice?", a: "Advising Command on network hardening and risks to mission if systems are compromised.", cat: "Technical", theme: "theme-technical" },
+            { q: "What is Data Fusion?", a: "Combining data from multiple sensors (radar, sonar, satellites) into one clear picture.", cat: "Technical", theme: "theme-technical" },
+            { q: "The Cognitive Domain?", a: "The mind of the adversary. The target of influence operations.", cat: "Technical", theme: "theme-technical" },
+            { q: "Non-Kinetic Effects?", a: "Achieving results without physical destruction (e.g., jamming a radar vs blowing it up).", cat: "Technical", theme: "theme-technical" },
+            { q: "Impactful Projection?", a: "Ability to send force far from home to influence events (Diplomacy or Deterrence).", cat: "Technical", theme: "theme-technical" },
+            { q: "Humanitarian Role (IWO)?", a: "Restoring comms in disaster zones to coordinate aid delivery.", cat: "Technical", theme: "theme-technical" },
+            { q: "What is Interoperability?", a: "Ability of our systems to talk securely with allies (US/UK/Japan).", cat: "Technical", theme: "theme-technical" },
+            { q: "Tactical Data Link?", a: "The 'battlefield internet' sharing real-time targeting data between ships/jets (Link 16).", cat: "Technical", theme: "theme-technical" },
+            { q: "SATCOM Risks?", a: "Jamming, Weather interference, Physical anti-satellite attacks.", cat: "Technical", theme: "theme-technical" },
+            { q: "Frequency Hopping?", a: "Rapidly changing radio frequency to evade jamming and interception.", cat: "Technical", theme: "theme-technical" },
+            { q: "What is Spoofing?", a: "Sending fake signals to trick enemy sensors (e.g., faking ship location).", cat: "Technical", theme: "theme-technical" },
+            { q: "What is Jamming?", a: "Flooding a frequency with noise to block enemy comms or radar.", cat: "Technical", theme: "theme-technical" },
+            { q: "Blue Team vs Red Team?", a: "Blue defends the network; Red attacks it (simulation) to test security.", cat: "Technical", theme: "theme-technical" },
+            { q: "HMAS Watson Function?", a: "Premier warfare training establishment. Home of IWO School.", cat: "Technical", theme: "theme-technical" },
+            { q: "HMAS Creswell History?", a: "Royal Australian Naval College (RANC). Est 1913. Home of officer training.", cat: "Training", theme: "theme-training" },
+            { q: "Leadership: Will vs Skill?", a: "If underperformance is Skill, train them. If Will (attitude), counsel/discipline them.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Scenario: Managing Up?", a: "Presenting technical risks honestly to a superior so they can make informed command decisions.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Handling Failure?", a: "Growth mindset. Owning the mistake, learning the lesson, and moving forward.", cat: "Leadership", theme: "theme-leadership" },
+            { q: "Navy Swim Test?", a: "50m swim in overalls, 15min tread water, 3m safety jump.", cat: "Training", theme: "theme-training" },
+            { q: "What is Signature Management?", a: "Controlling a ship's emissions (acoustic, electronic, thermal) to avoid detection.", cat: "Technical", theme: "theme-technical" },
+            { q: "OSINT?", a: "Open Source Intelligence. Intel gathering from public sources (internet, news).", cat: "Technical", theme: "theme-technical" },
+            { q: "The 'Grey Zone'?", a: "Conflict below the threshold of war (cyber attacks, coercion, misinformation).", cat: "Technical", theme: "theme-technical" },
+            { q: "Fleet Base East Location?", a: "Sydney (Garden Island).", cat: "Training", theme: "theme-training" },
+            { q: "Fleet Base West Location?", a: "Rockingham, WA (HMAS Stirling).", cat: "Training", theme: "theme-training" },
+            { q: "My Officer Goal?", a: "To be technically elite but humanly grounded. Trusted by Command for advice, and by sailors for welfare.", cat: "Motivation", theme: "theme-personal" }
         ];
-
-        // Fill remaining cards with logic/scenario variations to reach 100
-        const categories = ["Personal Motivation", "IWO Role", "Training Pipeline", "Policies & Tech", "ADF Knowledge"];
-        const themes = ["theme-personal", "theme-technical", "theme-training", "theme-policy", "theme-leadership"];
-
-        while(flashcards.length < 100) {
-            const i = flashcards.length;
-            flashcards.push({
-                q: `Expanded IWO Scenario #${i+1}: How do you apply leadership or technical expertise in this specific environment?`,
-                a: "Detailed answer providing context on mission planning, technical redundancy, and your specific project management background from the ADF workbook.",
-                cat: categories[i % categories.length],
-                theme: themes[i % themes.length]
-            });
-        }
 
         let currentIndex = 0;
         let isStudyMode = false;
@@ -245,14 +299,12 @@
             
             setTimeout(() => {
                 qText.innerText = card.q;
-                aText.innerHTML = card.a.replace(/\n/g, '<br>');
+                aText.innerHTML = card.a;
                 catLabel.innerText = card.cat;
                 cardHeader.innerText = `#${currentIndex + 1} | ${card.cat}`;
                 
-                // Set Theme Class
                 container.className = `w-full max-w-md ${isStudyMode ? '' : 'h-[450px]'} relative card-inner shadow-2xl rounded-2xl ${card.theme}`;
                 
-                // Progress Update
                 progText.innerText = `${currentIndex + 1} / ${flashcards.length}`;
                 progBar.style.width = `${((currentIndex + 1) / flashcards.length) * 100}%`;
                 
@@ -327,11 +379,7 @@
             }
         }
 
-        function shuffleCards() {
-            for (let i = flashcards.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
-            }
+        function resetOrder() {
             currentIndex = 0;
             updateCard();
         }
